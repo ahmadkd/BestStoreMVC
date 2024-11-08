@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;  //like [MaxLength(100)]
 
 namespace BestStoreMVC.Models
 {

@@ -8,15 +8,31 @@ namespace BestStoreMVC.Controllers
     {
         private readonly ApplicationDbContext context;
         private readonly IWebHostEnvironment environment;
+        private readonly int pageSize = 5;
         public ProductsController(ApplicationDbContext context, IWebHostEnvironment environment)
         {
             this.context = context;
             this.environment = environment;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(int pageIndex)
         {
-            var products = context.Products.OrderByDescending(p => p.Id).ToList();
+            IQueryable<Product> query = context.Products;
+            query= query.OrderByDescending(p => p.Id);
+            //pagination functionality
+            if (pageIndex < 1) 
+            {
+                pageIndex = 1;
+            }
+            decimal count = query.Count();
+            int totalPages = (int)Math.Ceiling(count / pageSize);
+            query = query.Skip((pageIndex - 1) * pageSize).Take(pageSize);
+
+
+
+            var products = query.ToList();
+            ViewData["PageIndex"] = pageIndex;
+            ViewData["TotalPages"] = totalPages;
             return View(products);
         }
         public IActionResult Create() => View();
@@ -50,6 +66,7 @@ namespace BestStoreMVC.Controllers
             };
             context.Products.Add(product);
             context.SaveChanges();
+
             return RedirectToAction("Index", "Products");
         }
 
@@ -115,6 +132,11 @@ namespace BestStoreMVC.Controllers
             context.SaveChanges();
             return RedirectToAction("Index", "Products");
         }
+
+
+
+
+
         public IActionResult Delete(int id)
         {
             var product = context.Products.Find(id);
